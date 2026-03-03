@@ -12,6 +12,7 @@ import {
   equipment, recentAlerts, kpis, trendData,
   CHART_COLORS, getStatusBg, getSeverityBg,
 } from "@/data/mockData";
+import { AIInsightsWidget } from "@/components/dashboard/AIInsightsWidget";
 
 const kpiIcons = {
   monitor: Monitor,
@@ -257,6 +258,11 @@ const Dashboard = () => {
           </Card>
         </motion.div>
       </div>
+
+      {/* AI Insights */}
+      <motion.div variants={item} initial="hidden" animate="show">
+        <AIInsightsWidget />
+      </motion.div>
     </div>
   );
 };

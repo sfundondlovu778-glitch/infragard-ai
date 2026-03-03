@@ -209,13 +209,62 @@ export const generateSensorTimeSeries = (baseValue: number, variance: number, po
 };
 
 export const failurePredictions = [
-  { equipment: "Pump P7", probability: 67, rul: 28, trend: "increasing" },
-  { equipment: "Compressor C5", probability: 22, rul: 112, trend: "stable" },
-  { equipment: "Transformer T3", probability: 18, rul: 156, trend: "increasing" },
-  { equipment: "Generator G2", probability: 5, rul: 280, trend: "decreasing" },
-  { equipment: "Motor A1", probability: 3, rul: 342, trend: "stable" },
-  { equipment: "Motor M12", probability: 4, rul: 305, trend: "stable" },
-  { equipment: "Pump P3", probability: 1, rul: 410, trend: "decreasing" },
+  { equipment: "Pump P7", probability: 67, rul: 28, trend: "increasing", confidence: 92 },
+  { equipment: "Compressor C5", probability: 22, rul: 112, trend: "stable", confidence: 88 },
+  { equipment: "Transformer T3", probability: 18, rul: 156, trend: "increasing", confidence: 85 },
+  { equipment: "Generator G2", probability: 5, rul: 280, trend: "decreasing", confidence: 91 },
+  { equipment: "Motor A1", probability: 3, rul: 342, trend: "stable", confidence: 94 },
+  { equipment: "Motor M12", probability: 4, rul: 305, trend: "stable", confidence: 90 },
+  { equipment: "Pump P3", probability: 1, rul: 410, trend: "decreasing", confidence: 96 },
+];
+
+// AI/ML Engine Data
+export const anomalyDetectionData = Array.from({ length: 60 }, (_, i) => {
+  const isAnomaly = [12, 13, 34, 35, 48].includes(i);
+  return {
+    time: `${String(Math.floor(i / 2.5)).padStart(2, "0")}:${i % 2 === 0 ? "00" : "30"}`,
+    value: isAnomaly
+      ? 85 + Math.random() * 30
+      : 45 + Math.random() * 15,
+    upperBound: 75,
+    lowerBound: 35,
+    isAnomaly,
+  };
+});
+
+export const featureImportance = [
+  { feature: "Vibration RMS", importance: 0.28, category: "Mechanical" },
+  { feature: "Temperature Delta", importance: 0.22, category: "Thermal" },
+  { feature: "Current Draw", importance: 0.18, category: "Electrical" },
+  { feature: "Operating Hours", importance: 0.12, category: "Usage" },
+  { feature: "Humidity", importance: 0.08, category: "Environmental" },
+  { feature: "Load %", importance: 0.07, category: "Operational" },
+  { feature: "Age (months)", importance: 0.05, category: "Usage" },
+];
+
+export const modelTrainingHistory = [
+  { epoch: "v1.0", accuracy: 78.2, loss: 0.42, date: "2025-12-01" },
+  { epoch: "v1.1", accuracy: 82.5, loss: 0.35, date: "2026-01-01" },
+  { epoch: "v1.2", accuracy: 86.1, loss: 0.28, date: "2026-01-15" },
+  { epoch: "v1.3", accuracy: 89.4, loss: 0.22, date: "2026-02-01" },
+  { epoch: "v1.4", accuracy: 91.8, loss: 0.18, date: "2026-02-15" },
+  { epoch: "v1.5", accuracy: 93.0, loss: 0.15, date: "2026-03-01" },
+];
+
+export const predictionAccuracyHistory = [
+  { month: "Oct", predicted: 12, actual: 10, accuracy: 83 },
+  { month: "Nov", predicted: 8, actual: 9, accuracy: 89 },
+  { month: "Dec", predicted: 15, actual: 14, accuracy: 93 },
+  { month: "Jan", predicted: 11, actual: 11, accuracy: 100 },
+  { month: "Feb", predicted: 9, actual: 10, accuracy: 90 },
+  { month: "Mar", predicted: 7, actual: 6, accuracy: 86 },
+];
+
+export const aiInsights = [
+  { id: "ai-1", type: "critical" as const, title: "Imminent Bearing Failure", description: "Pump P7 bearing degradation pattern matches 94% of historical failure cases. Recommend immediate replacement within 48 hours.", equipment: "Pump P7", confidence: 94, action: "Schedule emergency maintenance" },
+  { id: "ai-2", type: "warning" as const, title: "Thermal Anomaly Detected", description: "Transformer T3 oil temperature shows abnormal rise pattern inconsistent with load profile. Possible insulation degradation.", equipment: "Transformer T3", confidence: 87, action: "Order oil analysis" },
+  { id: "ai-3", type: "optimization" as const, title: "Efficiency Optimization", description: "Compressor C5 operating 12% below optimal efficiency. Adjusting discharge pressure setpoint could save $2,400/month.", equipment: "Compressor C5", confidence: 91, action: "Adjust parameters" },
+  { id: "ai-4", type: "info" as const, title: "Maintenance Window Suggested", description: "AI analysis suggests combining Motor A1 lubrication with M12 belt inspection to reduce total downtime by 35%.", equipment: "Multiple", confidence: 82, action: "Merge work orders" },
 ];
 
 // Utility functions
