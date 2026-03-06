@@ -4,6 +4,8 @@ import { AppSidebar } from "./AppSidebar";
 import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -18,7 +20,9 @@ const pageTitles: Record<string, string> = {
 
 export function AppLayout() {
   const location = useLocation();
+  const { user } = useAuth();
   const pageTitle = pageTitles[location.pathname] || "InfraGuard AI";
+  const initials = user?.email?.slice(0, 2).toUpperCase() || "??";
 
   return (
     <SidebarProvider>
@@ -38,6 +42,7 @@ export function AppLayout() {
                   className="pl-8 w-56 h-8 text-xs bg-background"
                 />
               </div>
+              <ThemeToggle />
               <Button variant="ghost" size="icon" className="relative h-8 w-8">
                 <Bell className="h-4 w-4" />
                 <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
@@ -45,7 +50,7 @@ export function AppLayout() {
                 </span>
               </Button>
               <div className="h-8 w-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-xs font-semibold">
-                AD
+                {initials}
               </div>
             </div>
           </header>
