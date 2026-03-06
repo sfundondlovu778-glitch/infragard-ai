@@ -5,16 +5,51 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  if (!loading && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard");
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    setSubmitting(true);
+
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
+        if (error) throw error;
+        toast.success("Check your email to confirm your account");
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Authentication failed");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -53,14 +88,12 @@ const Login = () => {
             ))}
           </div>
 
-          {/* Live status indicator */}
           <div className="mt-10 flex items-center gap-2 text-sm opacity-60">
             <Activity className="h-4 w-4 animate-pulse-glow" />
             <span>System operational — all services running</span>
           </div>
         </div>
 
-        {/* Background Pattern */}
         <div className="absolute inset-0 opacity-[0.07]">
           <div
             className="absolute inset-0"
@@ -76,7 +109,6 @@ const Login = () => {
       {/* Right Login Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-sm animate-fade-in">
-          {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2 mb-10 justify-center">
             <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
               <Shield className="h-5 w-5 text-primary-foreground" />
@@ -85,20 +117,25 @@ const Login = () => {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-heading font-bold">Welcome back</h2>
-            <p className="text-muted-foreground mt-1 text-sm">Sign in to access your dashboard</p>
+            <h2 className="text-2xl font-heading font-bold">
+              {isSignUp ? "Create account" : "Welcome back"}
+            </h2>
+            <p className="text-muted-foreground mt-1 text-sm">
+              {isSignUp ? "Sign up to get started" : "Sign in to access your dashboard"}
+            </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-xs font-medium">Email Address</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@infraguard.ai"
+                placeholder="you@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-10"
+                required
               />
             </div>
 
@@ -112,6 +149,8 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-10 pr-10"
+                  required
+                  minLength={6}
                 />
                 <Button
                   type="button"
@@ -125,24 +164,34 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Checkbox id="remember" />
-                <Label htmlFor="remember" className="text-xs font-normal cursor-pointer">
-                  Remember me
-                </Label>
+            {!isSignUp && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="remember" />
+                  <Label htmlFor="remember" className="text-xs font-normal cursor-pointer">
+                    Remember me
+                  </Label>
+                </div>
               </div>
-              <Button variant="link" className="px-0 text-xs h-auto">
-                Forgot password?
-              </Button>
-            </div>
+            )}
 
-            <Button type="submit" className="w-full h-10 font-semibold" size="lg">
-              Sign In
+            <Button type="submit" className="w-full h-10 font-semibold" size="lg" disabled={submitting}>
+              {submitting ? "Please wait..." : isSignUp ? "Create Account" : "Sign In"}
             </Button>
           </form>
 
-          <p className="text-center text-xs text-muted-foreground mt-8">
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-primary font-medium hover:underline"
+            >
+              {isSignUp ? "Sign in" : "Sign up"}
+            </button>
+          </p>
+
+          <p className="text-center text-xs text-muted-foreground mt-4">
             Protected by enterprise-grade encryption
           </p>
         </div>
